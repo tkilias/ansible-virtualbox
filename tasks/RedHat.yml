@@ -1,0 +1,42 @@
+
+- name: Upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+    update_cache: true
+
+- name: Install kernel-sources
+  yum:
+    name: 'kernel-devel'
+    state: present
+
+- name: Register latest installed kernel version 
+  shell: "$(rpm -q --last kernel | perl -pe 's/^kernel-(\S+).*/$1/' | head -1)"
+  register: latest_installed_kernel
+
+- name: reboot nodes
+  shell: sleep 2 && shutdown -rk +1 "Ansible reboot"
+  async: true
+  poll: 0
+  ignore_errors: true
+  when: ansible_kernel != latest_installed_kernel 
+
+- name: wait for server to come back
+  local_action: wait_for
+  args:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    state: started
+    delay: 30
+    timeout: 300
+
+- name: Set kernel directory
+  set_fact:
+    kernel_directory: "/usr/src/kernels/{{ latest_installed_kernel }}"
+
+- name: "Install VirtualBox driver"
+  become: yes
+  become_user: root
+  shell: /usr/lib/virtualbox/vboxdrv.sh setup
+  enviromnent:
+    KERN_DIR: "{{ kernel_directory }}"
