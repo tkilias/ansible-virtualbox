@@ -21,7 +21,4 @@
   package: name={{virtualbox_pkg_name}} state=present
 
 - name: install vbox drivers...
-  become: yes
-  become_user: root
-  with_items: '{{virtualbox_postinstall_cfg}}'
-  command: '{{item}}'
+  include: RedHat.yml
