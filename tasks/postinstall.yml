@@ -27,7 +27,7 @@
 
 - name: reboot nodes
   include: reboot.yml
-  #  when: ansible_kernel != latest_installed_kernel 
+  when: ansible_kernel != latest_installed_kernel 
 
 - name: Set kernel directory
   set_fact:
