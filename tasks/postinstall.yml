@@ -10,9 +10,14 @@
     name: 'kernel-devel'
     state: present
 
-- name: Register latest installed kernel version 
-  shell: "rpm -q --last kernel | perl -pe 's/^kernel-(\S+).*/$1/' | head -1"
-  register: latest_installed_kernel
+- name: Get latest installed kernel version from rpm
+  shell: "rpm -q --last kernel | perl -pe 's/^kernel-(\\S+).*/$1/' | head -1"
+  register: latest_installed_kernel_stdout
+
+- name: Set fact latest installed kernel
+  set_fact:
+    latest_installed_kernel: '{{ latest_installed_kernel_stdout.stdout }}'
+  when: latest_installed_kernel_stdout.rc == 0
   
 - name: debug kernel version
   debug:
@@ -21,26 +26,8 @@
       Latest installed Kernel: {{ latest_installed_kernel }}
 
 - name: reboot nodes
-  shell: sleep 2 && shutdown -rk +1 "Ansible reboot"
-  async: true
-  poll: 0
-  ignore_errors: true
-  when: ansible_kernel != latest_installed_kernel 
-
-- name: Wait for shutdown
-  local_action: pause
-  args:
-    minutes: 1
-    prompt: false
-
-- name: wait for server to come back
-  local_action: wait_for
-  args:
-    host: "{{ inventory_hostname }}"
-    port: 22
-    state: started
-    delay: 30
-    timeout: 300
+  include: reboot.yml
+  #  when: ansible_kernel != latest_installed_kernel 
 
 - name: Set kernel directory
   set_fact:
@@ -50,5 +37,5 @@
   become: yes
   become_user: root
   shell: /usr/lib/virtualbox/vboxdrv.sh setup
-  enviromnent:
+  environment:
     KERN_DIR: "{{ kernel_directory }}"
