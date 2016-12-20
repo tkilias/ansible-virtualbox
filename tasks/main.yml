@@ -20,5 +20,5 @@
   become_user: root
   package: name={{virtualbox_pkg_name}} state=present
 
-- name: install vbox drivers...
-  include: RedHat.yml
+- name: Execute post install tasks
+  include: '{{ virtualbox_postinstall_tasks }}'
