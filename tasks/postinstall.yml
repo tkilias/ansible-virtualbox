@@ -11,8 +11,14 @@
     state: present
 
 - name: Register latest installed kernel version 
-  shell: "$(rpm -q --last kernel | perl -pe 's/^kernel-(\S+).*/$1/' | head -1)"
+  shell: "rpm -q --last kernel | perl -pe 's/^kernel-(\S+).*/$1/' | head -1"
   register: latest_installed_kernel
+  
+- name: debug kernel version
+  debug:
+    msg: > 
+      Current kernel: {{ ansible_kernel }}
+      Latest installed Kernel: {{ latest_installed_kernel }}
 
 - name: reboot nodes
   shell: sleep 2 && shutdown -rk +1 "Ansible reboot"
@@ -20,6 +26,12 @@
   poll: 0
   ignore_errors: true
   when: ansible_kernel != latest_installed_kernel 
+
+- name: Wait for shutdown
+  local_action: pause
+  args:
+    minutes: 1
+    prompt: false
 
 - name: wait for server to come back
   local_action: wait_for
