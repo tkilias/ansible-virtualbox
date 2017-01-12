@@ -11,6 +11,6 @@ virtualbox_dep_pkgs:
   - dkms
 
 virtualbox_pkg_mgr: rpm
-virtualbox_rpm_repo_base_url: http://download.virtualbox.org/virtualbox/rpm/el/{{ ansible_distribution_version }}/{{ ansible_machine }}
+virtualbox_rpm_repo_base_url: http://download.virtualbox.org/virtualbox/rpm/el/{{ ansible_distribution_release }}/{{ ansible_machine }}
 virtualbox_postinstall_tasks: postinstall.yml
 virtualbox_pkg_name: VirtualBox-{{virtualbox_version}}
