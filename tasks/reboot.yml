@@ -4,16 +4,11 @@
   poll: 0
   ignore_errors: true
 
-- name: Debug inventory_hostname
-  debug:
-    msg: "{{ inventory_hostname }} {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-  delegate_to: localhost
-
 - name: wait for server comeback
   wait_for:
     timeout: 400
     delay: 100
     host: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-    port: 22
+    port: "{{ ansible_ssh_port }}"
   delegate_to: localhost
   sudo: false
