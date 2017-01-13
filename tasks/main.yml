@@ -14,6 +14,7 @@
     
 - name: add pkg mgr config
   include: '{{virtualbox_pkg_mgr}}.yml'
+  when: virtualbox_pkg_mgr is defined
 
 - name: install virtualbox
   become: yes
@@ -22,3 +23,4 @@
 
 - name: Execute post install tasks
   include: '{{ virtualbox_postinstall_tasks }}'
+  when: virtualbox_pkg_mgr is defined
