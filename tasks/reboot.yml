@@ -38,3 +38,9 @@
     port: "{{ ansible_ssh_port }}"
   delegate_to: localhost
   sudo: false
+  
+- name: wait for finalizing startup
+  wait_for:
+    timeout: 30
+  delegate_to: localhost
+  sudo: false
