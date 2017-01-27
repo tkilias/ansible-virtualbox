@@ -4,14 +4,15 @@
     timeout: 5
     delay: 1
     host: "{{ item }}"
-    port: "{{ ansible_ssh_port }}"
+    port: "{{ ansible_ssh_port | default(22) }}"
   delegate_to: localhost
   sudo: false
   register: "tested_hosts"
   with_items:
     - "{{ inventory_hostname }}"
-    - "{{ ansible_ssh_host }}"
+    - "{{ ansible_ssh_host | default('error') }}"
     - "{{ ansible_default_ipv4.address }}"
+  when: item != 'error'
   ignore_errors: true
 
 - name: "find hostname or address from tested hosts for waiting to reboot" 
@@ -35,7 +36,7 @@
     timeout: 400
     delay: 100
     host: "{{ found_hosts[0] }}"
-    port: "{{ ansible_ssh_port }}"
+    port: "{{ ansible_ssh_port | default(22) }}"
   delegate_to: localhost
   sudo: false
   
